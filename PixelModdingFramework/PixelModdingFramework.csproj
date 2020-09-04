@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Brayconn</Authors>
+    <Company>Brayconn</Company>
+    <Copyright>Copyright © Brayconn 2020</Copyright>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
