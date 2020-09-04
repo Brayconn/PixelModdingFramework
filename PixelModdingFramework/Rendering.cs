@@ -41,7 +41,7 @@ namespace PixelModdingFramework
         }
         public static void RenderTiles<T>(Graphics g, IMap<T> tileSource, Bitmap tileset, int tileSize) where T : IList<byte>
         {
-            for (int i = 0; i < tileSource.Tiles.Count; i++)
+            for (int i = 0; i < (tileSource.Width * tileSource.Height); i++)
             {
                 DrawTile(g, tileSource, i, tileset, tileSize);
             }
