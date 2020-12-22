@@ -2,10 +2,10 @@
 
 namespace PixelModdingFramework
 {
-    public interface IMap<T> where T : IList<byte>
+    public interface IMap<S,L,T> where L : IList<T>
     {
-        short Width { get; }
-        short Height { get; }
-        T Tiles { get; }
+        S Width { get; }
+        S Height { get; }
+        L Tiles { get; }
     }
 }

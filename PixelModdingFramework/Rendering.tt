@@ -1,0 +1,103 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+<# Type[] sizeTypes = new[] {
+	typeof(short)
+	};
+#>
+<# Type[] tileTypes = new[] {
+	typeof(byte)
+	};
+#>
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+
+namespace PixelModdingFramework
+{
+    public static partial class Rendering
+    {
+
+        public const int TilesetWidth = 16;
+        public const int TilesetHeight = 16;
+
+	 <# foreach(var s in sizeTypes) {
+		foreach(var t in tileTypes) {
+        var safeType = Nullable.GetUnderlyingType(t);
+        var isNull = true;
+        if(safeType == null)
+        {
+            isNull = false;
+            safeType = t;
+        }
+        void gen(string tt) {#>
+        #region <#= tt #>
+	    public static Image RenderTiles<T>(IMap<<#= s.Name #>, T, <#= tt #>> tileSource, Bitmap tileset, int tileSize, CompositingMode mode = CompositingMode.SourceOver) where T : IList<<#= tt #>>
+        {
+            Image img = new Bitmap(tileSource.Width * tileSize, tileSource.Height * tileSize);
+            RenderTiles(img, tileSource, tileset, tileSize, mode);
+            return img;
+        }
+        public static void RenderTiles<T>(Image i, IMap<<#= s.Name #>, T, <#= tt #>> tileSource, Bitmap tileset, int tileSize, CompositingMode mode = CompositingMode.SourceOver) where T : IList<<#= tt #>>
+        {
+            using(Graphics g = Graphics.FromImage(i))
+            {
+                g.CompositingMode = mode;
+                RenderTiles(g, tileSource, tileset, tileSize);
+            }
+        }
+        public static void RenderTiles<T>(Graphics g, IMap<<#= s.Name #>, T, <#= tt #>> tileSource, Bitmap tileset, int tileSize) where T : IList<<#= tt #>>
+        {
+            for (int i = 0; i < (tileSource.Width * tileSource.Height); i++)
+            {
+                <# if(isNull) { #>
+                if(tileSource.Tiles[i] != null)
+                <# } #>
+                DrawTile(g, tileSource, i, tileset, tileSize);
+            }
+        }
+
+        public static void DrawTile<T>(Image img, IMap<<#= s.Name #>, T, <#= tt #>> tileSource, int i, Bitmap tileset, int tileSize, CompositingMode mode = CompositingMode.SourceOver) where T : IList<<#= tt #>>
+        {
+            using (Graphics g = Graphics.FromImage(img))
+            {
+                g.CompositingMode = mode;
+                DrawTile(g, tileSource, i, tileset, tileSize);
+            }
+        }
+        public static void DrawTile<T>(Graphics g, IMap<<#= s.Name #>, T, <#= tt #>> tileSource, int i, Bitmap tileset, int tileSize) where T : IList<<#= tt #>>
+        {
+            var x = (i % tileSource.Width) * tileSize;
+            var y = (i / tileSource.Width) * tileSize;
+            g.DrawImage(GetTile((<#= t.Name #>)tileSource.Tiles[i], tileset, tileSize), x, y, tileSize, tileSize);
+        }
+
+        #endregion <#= tt #>
+
+        <# }
+        gen(t.Name);
+        gen($"Nullable<{t.Name}>"); #>
+
+        /// <summary>
+        /// Gets a single tile from a tileset
+        /// </summary>
+        /// <param name="tileSource"></param>
+        /// <param name="i"></param>
+        /// <param name="tileset"></param>
+        /// <param name="tileSize"></param>
+        /// <returns></returns>
+        public static Image GetTile(<#= t.Name #> tileValue, Bitmap tileset, int tileSize)
+        {
+            //yes, this is intentional to not use TilesetHeight
+            var tilesetX = (tileValue % TilesetWidth) * tileSize;
+            var tilesetY = (tileValue / TilesetWidth) * tileSize;
+            return tileset.Clone(new Rectangle(tilesetX, tilesetY, tileSize, tileSize), PixelFormat.DontCare);
+        }
+
+	<# }
+	} #>
+	}
+}
