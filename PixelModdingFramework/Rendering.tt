@@ -27,12 +27,8 @@ namespace PixelModdingFramework
 	 <# foreach(var s in sizeTypes) {
 		foreach(var t in tileTypes) {
         var safeType = Nullable.GetUnderlyingType(t);
-        var isNull = true;
         if(safeType == null)
-        {
-            isNull = false;
             safeType = t;
-        }
         void gen(string tt) {#>
         #region <#= tt #>
 	    public static Image RenderTiles<T>(IMap<<#= s.Name #>, T, <#= tt #>> tileSource, Bitmap tileset, int tileSize, CompositingMode mode = CompositingMode.SourceOver) where T : IList<<#= tt #>>
@@ -53,7 +49,7 @@ namespace PixelModdingFramework
         {
             for (int i = 0; i < (tileSource.Width * tileSource.Height); i++)
             {
-                <# if(isNull) { #>
+                <# if(tt.Contains("Nullable")) { #>
                 if(tileSource.Tiles[i] != null)
                 <# } #>
                 DrawTile(g, tileSource, i, tileset, tileSize);

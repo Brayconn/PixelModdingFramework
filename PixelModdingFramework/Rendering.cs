@@ -71,6 +71,7 @@ namespace PixelModdingFramework
         {
             for (int i = 0; i < (tileSource.Width * tileSource.Height); i++)
             {
+                                if(tileSource.Tiles[i] != null)
                                 DrawTile(g, tileSource, i, tileset, tileSize);
             }
         }
